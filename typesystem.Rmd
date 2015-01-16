@@ -194,18 +194,17 @@ vec * 2
 vec / 3
 vec^2
 ```
-By default, R makes point-wise operations (Not like MATLAB)
+By default, R makes point-wise operations (Not like MATLAB).
 ```{r}
 vec <- c(1,2,3)
 vec * vec
 ```
 If we want a vector-multiplication we need a special operator
-By default, R makes point-wise operations (Not like MATLAB)
 ```{r}
 vec <- c(1,2,3)
 vec %*% vec
 ```
-The same is true for matrices
+The same is true for matrices.
 ```{r}
 mat <- matrix(1:4, ncol=2, nrow=2)
 mat
@@ -214,7 +213,7 @@ mat * mat
 mat %*% mat
 ```
 ##Recycling
-When the verctor arguments do not fit, R recycles the shorter vector.
+When the vector arguments do not fit, R recycles the shorter vector.
 ```{r}
 vec4 <- c(1,2,3,4)
 vec2 <- c(1,2)
