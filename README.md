@@ -5,3 +5,4 @@ An introduction to R programming
 - [Functions](functions.Rmd)
 - [Classes](classes.Rmd)
 - [Packages](packages.Rmd)
+- [Reproducability](reproducability.md)
