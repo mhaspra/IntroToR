@@ -3,18 +3,93 @@ title: "Classes"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Object oriented programming is possible in R... somehow...
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Classes were introduced into S in version 3 and are called S3 classes. As R is a S dialect the term `S3 Class` has been adopted.
+
+Why is the term `S3` important? Because with S4 an additional class concept has been introduced! Yes, there're two different class concepts 
+in S/R! To make things worse, the syntax of the two class types is different. Using S4 classes is different to the way you use common classes found in R packages.
+
+What to use? This depends on who you ask. Some prefer the S4 classes, others, like Google, stick to the S3 classes.
+
+[Google's R Style Guide](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml)
+
+> avoid S4 objects and methods when possible; never mix S3 and S4 
+
+# S3 Classes
+
+An S3 Class is actually just a common R list with an attribute called `class`.
+
+The simples class
+```{r}
+object <- list(x=1)
+class(object)
+class(object) <- "simpleClass"
+class(object)
+object
+```
+
+Of course this is not the best practice to instanciate an object. Using a constructor function should be the way to do it. 
+
+The problem with S3 classes is that it's just a list. You can add and remove elements and you can even `unclass` the list again. It's not type safe, the compiler won't complain when trying to write an unknown member.
+
+The reasons why S3 classes are so popular are:
+
+- it's simple
+- most packages use them
+
+## Constructor function
+  
+```{r}
+powerTool <- function(myX) {
+    get <- function() myX
+    set <- function(newX) myX <<- newX
+    sqr <- function() pow(2)
+    pow3 <- function() pow(3)
+    pow <- function(y) myX ^ y
+    instance <- list(
+        get=get,
+        set=set,
+        sqr=sqr,
+        pow3=pow3)
+    class(instance) <- 'powerTool'
+    return(instance)
+}
+```
+
+- methods are simple variable assignments
+- at the end of the function we create a list containing all public methods
+- the class type is assigned with the `class()` function
+- note the new operator `<<-` in the `set()` function
+    - this operator is looking in the parent environment for the `myX` variable
+    - `<-` would create a local `myX` variable
+
+Usage
+```{r}
+p <- powerTool(2)
+p$sqr()
+p$pow3()
+```
+Note that the `pow()` function is private and not accessible!
+```{r, error=TRUE}
+p$pow(10)
+```
+
+If you just print the variable the ouput is just like the output of a list
+```{r}
+p
+```
+
+We need to implement a `print()` method to change that output. `print()` is a generic function and the implementation is choosen by the class type.
 
 ```{r}
-summary(cars)
+print.powerTool <- function(o) cat("PowerTool, base", o$get(), sep = "=")
 ```
 
-You can also embed plots, for example:
+Now we can print the variable again
 
-```{r, echo=FALSE}
-plot(cars)
+```{r}
+p
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
