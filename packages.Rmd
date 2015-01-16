@@ -30,7 +30,7 @@ library("dplyr")
 
 For R newbies, working with data frames is hard to learn. While simple subsetting is easy much time is spent when trying advanced column or row subsetting and summarizing.
 
-Personally, when solving simple R questions I used to spend a hell lot of time with data frame manipulations. This seems to be general problem. Why? Because several people out there wrote data frame packages like:
+Personally, when solving simple R questions I used to spend a hell lot of time with data frame manipulations. This seems to be general problem. Why I came to that conclusion? Because several people out there wrote data manipulation packages like:
 
 - dplyr
 - data.table
@@ -151,7 +151,7 @@ As we can see another data manipulation package is at the top of the charts!
 With the chain operator `%>%` defined in the dplyr package we can reduce the code. The result of a function is the input of the
 next function. So we don't have to include the data frame variable in every function call.
 ```{r}
-smallPackages <-  data %>% select(package, size, r_version) %>% arrange(package, desc(r_version)) %>%  filter(size < 1000)
+smallPackages <- data %>% select(package, size, r_version) %>% arrange(package, desc(r_version)) %>%  filter(size < 1000)
 
 smallPackages
 ```
