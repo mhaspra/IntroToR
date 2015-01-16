@@ -1,0 +1,223 @@
+---
+title: "Type System"
+output: html_document
+---
+
+
+#Data Types
+##Vectors
+The basic unit of data in R is the vector. (Even a single integer is represented as a vector of length 1)
+
+###Vector Types
+R has six basic (‘atomic’) vector types:
+
+####logical
+```{r}
+vec <- c(TRUE, FALSE)
+typeof(vec)
+str(vec)
+```
+####double
+```{r}
+vec <- c(1, 1.1)
+typeof(vec)
+str(vec)
+```
+####integer
+```{r}
+vec <- c(1L, 2L)
+typeof(vec)
+str(vec)
+```
+####complex
+```{r}
+vec <- c(1i, 1+1i)
+typeof(vec)
+str(vec)
+```
+####string (or character)
+```{r}
+vec <- c('a', 'b')
+typeof(vec)
+str(vec)
+```
+####raw
+```{r}
+vec <- raw(2)
+typeof(vec)
+str(vec)
+```
+
+###Vector Creation
+```{r}
+c(1,2,3,5,8) #generate a vector with specific elements
+1:10 # generate a sequence-vector
+vector("numeric", length=10)  # generate a numerical vector of length 10 with default values
+```
+
+###Indexing
+```{r}
+vec <- c('a','b','c','d','e')
+```
+Vectors can be accessed by index. Beginning with 1.
+```{r}
+vec[1]
+```
+The index can also be a vector.
+```{r}
+vec[3:4]
+```
+Vectors can also be accessed by boolean vectors.
+```{r}
+vec[vec == 'c']
+```
+
+##Lists
+A list is a special type of a vector that can contain different types. (They are Generic Vectors)
+```{r}
+l <- list(1, "a", TRUE, 1+1i)
+l
+str(l)
+```
+###Indexing
+One can acess lists similarly to vectors.
+```{r}
+l <- list(1, "a", TRUE, 1+1i)
+l[[1]]
+l[[2]]
+```
+If we assign names to the entries, we can access them by name.
+```{r}
+l <- list(1, "a", TRUE, 1+1i)
+names(l) <- c('entry1', 'entry2', 'entry3', 'entry4')
+l$entry1
+l$entry3
+```
+##Matrices
+Matrices are vectors with a dimension attribute.
+```{r}
+mat <- matrix(nrow = 3, ncol = 4) # create a matix of dimension 3x4
+mat
+attributes(mat) # The dim attribute is itself a vector of lenght 2
+dim(mat) # Get the dimension of the matrix
+```
+###Matrix Creation
+Matrices are constructed by filling it column by column.
+```{r}
+mat <- matrix(1:12, nrow = 3, ncol = 4) 
+mat
+mat <- matrix(c('a', 'b', 'c', 'd'), nrow = 2, ncol = 2) 
+mat
+```
+Or by using rbind/cbind.
+```{r}
+cbind(1:3, 6:8) # create a matrix by binding two column vectors together
+rbind(1:3, 6:8) # create a matrix by binding two row vectors together
+```
+###Indexing
+Matrices can be accessed with [row, column] 
+```{r}
+mat <- matrix(c('a', 'b', 'c', 'd'), nrow = 2, ncol = 2)
+mat
+mat[1,1]
+mat[1,2]
+```
+##Data Frames
+Data frames are lists of vectors. They are used to store tabular data.
+```{r}
+df <- data.frame(nr = 1:3, name = c("John", "Joe", "Jamie")) # construct a simple dataframe
+df
+nrow(df) # number of rows
+ncol(df) # number of columns
+```
+###Indexing
+Dataframes can be accessed like matrices (with [row, column]) or like lists (with the $ operator).
+```{r}
+df[1,2]
+df$name
+df$name[1]
+```
+##Factors
+Factors are used to represent categorical data.
+```{r}
+facts <- factor(c("big","medium","small","big", "small"))
+facts
+```
+Factors can also be ordered.
+```{r}
+facts <- factor(c("big","medium","small","big", "small"),
+                levels = c("small", "medium", "big")) # construct factors with specific label ordering
+facts
+```
+##Automatic Coercion
+If datatypes are R is going to convert them to the least common datatype.
+```{r}
+str(c(1,"a")) # 1 is converted to chr
+str(c(TRUE, 1)) # TRUE is converted to num
+```
+##Manual Data Conversations
+You can convert objects to different types with the as.* functions.
+```{r}
+vec <- c(1,2,3)
+str(vec)
+as.numeric(vec)
+as.character(vec)
+```
+##Missing Values
+Missing values are denoted by NA or NaN
+```{r}
+is.na(NA) # function to test for NA of an object
+is.nan(NaN) # function to test for NaN of an object
+is.na(NaN) # NaN are also NA
+is.nan(NA) # but NA are not NaN
+is.na(c(1, NA, 2)) # produce a logical vector that indicates wether an element is NA or not
+is.nan(0/0)
+```
+#Some functions that help us to explore R objects
+```{r}
+vec <- c(1,2,3)
+str(vec) # structure of an object 
+length(vec) # number of elements or components
+class(vec)  # class or type of an object
+summary(vec) # different information about the object
+attributes(matrix(1:2)) # print attributes of the object
+table(c("a","a","b")) # interpret input data as factors and do a frequency count
+```
+#Vector Operations
+R has more or less the standart set of Operators.
+What is special, is that the operators work on vector.
+```{r}
+vec <- c(1,2,3)
+vec
+vec + 1
+vec * 2
+vec / 3
+vec^2
+```
+By default, R makes point-wise operations (Not like MATLAB).
+```{r}
+vec <- c(1,2,3)
+vec * vec
+```
+If we want a vector-multiplication we need a special operator
+```{r}
+vec <- c(1,2,3)
+vec %*% vec
+```
+The same is true for matrices.
+```{r}
+mat <- matrix(1:4, ncol=2, nrow=2)
+mat
+mat^2
+mat * mat
+mat %*% mat
+```
+##Recycling
+When the vector arguments do not fit, R recycles the shorter vector.
+```{r}
+vec4 <- c(1,2,3,4)
+vec2 <- c(1,2)
+vec2 + vec4
+vec4 + vec2
+vec2 * vec4
+```

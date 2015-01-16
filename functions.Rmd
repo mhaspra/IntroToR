@@ -1,0 +1,191 @@
+---
+title: "Functions"
+output: html_document
+---
+
+In R functions are objects and can be manipulated in much the same way as any other object. Functions (or more precisely, function closures) have three basic components: a formal argument list, a body and an environment
+
+#Function Definition
+Functions are written like below (usually in their own file). The value of the last statement gets returned.
+```{r}
+f = function() {
+  1 + 2
+}
+class(f)
+f()
+```
+Since Functions are first class objects, a function can return a function.
+```{r}
+f = function() {
+  g = function(){
+    4 + 4
+  }
+}
+class(f)
+a = f()
+class(a)
+a()
+```
+#Arguments
+Arguments are written within the brackets
+```{r}
+pow <- function(x, y){
+  x^y
+}
+pow(2,3)
+```
+##Default values for Arguments
+Arguments can have default values.
+```{r}
+pow <- function(x, y = 2){
+  x^y
+}
+pow(2,3)
+pow(2)
+```
+##Lazy evaluation of arguments
+Arguments are only evaluated when they are needed.
+```{r}
+f = function(a,b) {
+  1 + 2
+}
+f()
+f(1)
+f(1,2)
+```
+##Argument Matching
+Arguments can be matched by position or by name (or by a mixture of that)
+```{r}
+pow <- function(x, y){
+  x ^ y
+}
+
+pow(2,3)
+pow(y = 3, x = 2)
+pow(y = 3, 2)
+```
+
+That is usefull for functions with long argument lists where one does not want to specify all parameters
+```{r}
+args(lm)
+```
+
+Arguments can also be partially matched
+```{r}
+pow <- function(myLongParameterNamme, y){
+  myLongParameterNamme + y
+}
+
+pow(y = 3, m = 2)
+pow(3, m = 2)
+```
+
+The matching order is:
+
+* Exact match by name
+* Partial match by name
+* Match by position
+
+```{r}
+pow <- function(value, value2){
+  value^value2
+}
+
+pow(value = 2, val = 3)
+pow(value2 = 2, 3)
+```
+
+##The "..." Argument
+
+... indicates a variable number of arguments. Usually that is used to pass them to another function.
+```{r}
+pasteWithDashes <- function(...){
+  paste(..., sep="-")
+}
+
+pasteWithDashes('a', 'b', 'c')
+```
+
+Everything after ... argument must be named explicitely.
+
+# Environments
+Environments can be thought of as consisting of two things: a frame, which is a set of symbol-value pairs, and an enclosure, a pointer to an enclosing environment. When R looks up the value for a symbol the frame is examined and if a matching symbol is found its value will be returned. If not, the enclosing environment is then accessed and the process repeated. Environments form a tree structure in which the enclosures play the role of parents. The tree of environments is rooted in an empty environment, available through emptyenv(), which has no parent.
+
+So environments are a place to store variables. If ones starts up r and makes an assignment a variable in the global environment is created.
+```{r}
+rm(list = ls())
+a <- 1
+ls()
+ls(globalenv())
+```
+##Functions and Environments (Lexical Scoping)
+A function's environment is the environment that was active at the time that the function was created. [...] When a function is called, a new environment (called the evaluation environment) is created, whose enclosure is the environment from the function closure. This new environment is initially populated with the unevaluated arguments to the function; as evaluation proceeds, local variables are created within it.
+
+Lets create a function within a function and see what environments are created:
+
+```{r}
+rm(list = ls())
+
+f <- function(){
+  g <- function(){
+  }
+}
+f()
+environment(f)
+```
+
+The environment of f is the global environenment.
+```{r}
+environment(f)
+```
+
+The environment of g however is the environment created when f was called.
+```{r}
+g <- f()
+environment(g)
+```
+The parent of g's environment is f's environment which is the global environment again.
+```{r}
+parent.env(environment(g))
+```
+
+##Lexical Scoping
+That now gets interesting together with free variables in functions.
+Free variables are variables that arent assigned in the function body and that are not in the attribute list.
+```{r}
+rm(list = ls())
+a <- 2000
+b <- 1000
+x <- 1
+f <- function(){
+  a <- 200
+  b <- b <- 100
+  y <- 2
+  g <- function(){
+    a <- 20
+    x + y + a + b
+  }
+}
+g <- f()
+```
+The environments do now contain some variables.
+```{r}
+ls(environment(g))
+ls(environment(f))
+```
+Note that a and b are contained in different environments but with different values
+```{r}
+environment(g)$a
+environment(f)$a
+environment(g)$b
+environment(f)$b
+```
+If we now call g, R tries to assign values to the variables for the calculation (x + y + a + b). Therefore it looks through the environments starting with the environment that is created when g is called and if it doesn't find a symbol, it moves up to the parent.
+```{r}
+g()
+```
+If it reaches the empty environment, it throws an exception
+```{r error=TRUE}
+rm(x)
+g()
+```
