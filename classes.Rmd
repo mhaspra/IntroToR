@@ -7,8 +7,8 @@ Object oriented programming is possible in R... somehow...
 
 Classes were introduced into S in version 3 and are called S3 classes. As R is a S dialect the term `S3 Class` has been adopted.
 
-Why is the term `S3` important? Because with S4 an additional class concept has been introduced! Yes, there're two different class concepts 
-in S/R! To make things worse, the syntax of the two class types is different. Using S4 classes is different to the way you use common classes found in R packages.
+Why is the term `S3` important? Because with S4 an additional class concept has been introduced! Yes, there're two different class concepts
+in S/R! To make things worse, the syntax of the two class systems is different. Using S4 classes is different to the way you use common classes found in R packages.
 
 What to use? This depends on who you ask. Some prefer the S4 classes, others, like Google, stick to the S3 classes.
 
@@ -36,17 +36,18 @@ The problem with S3 classes is that it's just a list. You can add and remove ele
 The reasons why S3 classes are so popular are:
 
 - it's simple
+- it's flexible
 - most packages use them
 
 ## Constructor function
   
 ```{r}
-powerTool <- function(myX) {
-    get <- function() myX
-    set <- function(newX) myX <<- newX
+powerTool <- function(base) {
+    get <- function() base
+    set <- function(newBase) base <<- newBase
     sqr <- function() pow(2)
     pow3 <- function() pow(3)
-    pow <- function(y) myX ^ y
+    pow <- function(y) base ^ y
     instance <- list(
         get=get,
         set=set,
