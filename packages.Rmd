@@ -3,18 +3,164 @@ title: "Packages"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Package: dplyr
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+From `?dplyr`
+
+> dplyr provides a flexible grammar of data manipulation. It [...] focussed on tools for working with data frames (hence the d in the name).
+
+dplyr provides a few basic functions:
+
+- select()
+- filter()
+- arrange()
+- manipulate()
+- summarize()
+
+## Installation
+```R
+install.packages("dplyr")
+```
+
+```{r, message=FALSE}
+library("dplyr")
+```
+
+## The problems with standard R dataframes and tables
+
+For R newbies, working with data frames is hard to learn. While simple subsetting is easy much time is spent when trying advanced column or row subsetting and summarizing.
+
+Personally, when solving simple R questions I used to spend a hell lot of time with data frame manipulations. This seems to be general problem. Why? Because several people out there wrote data frame packages like:
+
+- dplyr
+- data.table
+- ...
+
+### Example
+```{r}
+df <- read.csv("data/2014-07-08.csv")
+```
+
+Get some information about the data set.
+```{r}
+head(df)
+nrow(df)
+```
+
+I'm only interested in some columns, say `package` and `size`... and I'm lost :-)
+```{r, error=TRUE}
+df[, df$package] 
+names(df)
+head(df[, 8])
+p <- df[,8]
+s <- df[,4]
+ps <- data.frame(packages=p, size=s)
+head(ps)
+```
+
+## select()
+
+With `select()` we can select a subset of columns of a data frame.
+
+I'm only interested in some columns, say `package` and `size`... and I'm in heaven!
+```{r}
+data <- tbl_df(df)
+ps <- select(data, package, size)
+ps
+```
+
+Select a range of columns
+```{r}
+names(data)
+select(data, r_version:ip_id)
+```
+Same as before but without the coutry
+```{r}
+select(data, r_version:ip_id, -country)
+```
+Same as before but in reverse column order
+```{r}
+select(data, ip_id:r_version, -country)
+```
+
+## filter() - Subsetting
+
+Use `filter()` for selecting rows.
 
 ```{r}
-summary(cars)
+filter(data, package=="dplyr")
+filter(data, package=="dplyr", country=="US")
+filter(data, package=="dplyr", country=="US" | country=="IN")
+filter(data, !is.na(version))
 ```
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
-plot(cars)
+## arrange() - Sorting
+
+Sort by columns by using `arrange()`. For descending order wrap the column name with the `desc()` function.
+```{r}
+arrange(data, size)
+arrange(data, desc(size))
+arrange(data, package, desc(version))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## mutate() - Add new columns
+
+With `mutate()` it's possible to add new columns.
+
+Calculate the size in MB
+```{r}
+mutate(data, size_mb = size / 2^20)
+mutate(data, size_mb = size / 2^20, size_mb_rounded=round(size_mb, digits = 2))
+```
+
+## summarize()
+
+Summarise multiple values to a single value. Summarising by group is supported.
+
+What's the mean size?
+
+```{r}
+summarize(data, mean(size))
+```
+
+### group_by()
+
+Adds a grouping attribute to the data frame. Summarising on such a data frame will apply the given function on each group.
+```{r}
+byPackage <- group_by(data, package)
+packSum <- summarize(byPackage,
+                      count = n(),
+                      unique = n_distinct(ip_id),
+                      countries = n_distinct(country),
+                      avg_bytes = mean(size))
+packSum
+```
+
+Having this we can solve questions like: Which are the top most 1% packages in the download ranking.
+```{r}
+q <- quantile(packSum$count, probs = 0.99)
+q
+arrange(filter(packSum, count > q), count)
+```
+
+As we can see another data manipulation package is at the top of the charts!
+
+## Chaining
+
+With the chain operator `%>%` defined in the dplyr package we can reduce the code. The result of a function is the input of the
+next function. So we don't have to include the data frame variable in every function call.
+```{r}
+smallPackages <-  data %>% select(package, size, r_version) %>% arrange(package, desc(r_version)) %>%  filter(size < 1000)
+
+smallPackages
+```
+or a bit more readable
+```r
+smallPackages <-  
+    data %>% 
+    select(package, size, r_version) %>% 
+    arrange(package, desc(r_version)) %>%  
+    filter(size < 1000)
+smallPackages
+```
