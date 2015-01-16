@@ -141,10 +141,15 @@ Having this we can solve questions like: Which are the top most 1% packages in t
 ```{r}
 q <- quantile(packSum$count, probs = 0.99)
 q
-arrange(filter(packSum, count > q), count)
+topPackages <- filter(packSum, count > q)
+topPackages
+```
+Let's sort the result to get a ranking
+```{r}
+arrange(topPackages, count)
 ```
 
-As we can see another data manipulation package is at the top of the charts!
+As we can see another data manipulation package is at the top of the download charts!
 
 ## Chaining
 
