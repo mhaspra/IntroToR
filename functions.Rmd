@@ -8,7 +8,7 @@ In R functions are objects and can be manipulated in much the same way as any ot
 #Function Definition
 Functions are written like below (usually in their own file). The value of the last statement gets returned.
 ```{r}
-f = function() {
+f <- function() {
   1 + 2
 }
 class(f)
@@ -16,13 +16,13 @@ f()
 ```
 Since Functions are first class objects, a function can return a function.
 ```{r}
-f = function() {
-  g = function(){
+f <- function() {
+  g <- function(){
     4 + 4
   }
 }
 class(f)
-a = f()
+a <- f()
 class(a)
 a()
 ```
@@ -73,7 +73,7 @@ args(lm)
 Arguments can also be partially matched
 ```{r}
 pow <- function(myLongParameterNamme, y){
-  myLongParameterNamme + y
+  myLongParameterNamme ^ y
 }
 
 pow(y = 3, m = 2)
@@ -188,4 +188,27 @@ If it reaches the empty environment, it throws an exception
 ```{r error=TRUE}
 rm(x)
 g()
+```
+#Generic functions and method dispatch
+How does the following work?
+```{r}
+summary(factor(c("big","medium","small","big", "small")))
+summary(matrix(1:4, ncol=2, nrow=2))
+```
+If we look at the function help file, it says "summary is ageneric function...." and if we look at the implementation we see a call to a function UseMethod("summary").
+```{r}
+summary
+```
+The help says: Method dispatch takes place based on the class(es) of the first argument to the generic function or of the object supplied as an argument to UseMethod.
+So what happens is that R checks the class of the argument and then calls a specific function:
+```{r}
+summary.factor(factor(c("big","medium","small","big", "small")))
+```
+We can also write out own generic functions.
+```{r}
+f.default <- function(x){x + 1}
+f.integer <- function(x){x + 2}
+f <- function(x){UseMethod("f")}
+f(1)
+f(1L)
 ```
