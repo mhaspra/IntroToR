@@ -141,10 +141,15 @@ Having this we can solve questions like: Which are the top most 1% packages in t
 ```{r}
 q <- quantile(packSum$count, probs = 0.99)
 q
-arrange(filter(packSum, count > q), count)
+topPackages <- filter(packSum, count > q)
+topPackages
+```
+Let's sort the result to get a ranking
+```{r}
+arrange(topPackages, count)
 ```
 
-As we can see another data manipulation package is at the top of the charts!
+As we can see another data manipulation package is at the top of the download charts!
 
 ## Chaining
 
@@ -163,4 +168,48 @@ smallPackages <-
     arrange(package, desc(r_version)) %>%  
     filter(size < 1000)
 smallPackages
+```
+
+# Package: lubridate
+
+Date tools.
+
+## Installation
+```{r}
+library(lubridate)
+```
+
+## Parsing
+
+```{r}
+ymd("20141201")
+ymd("2014/12/01")
+dmy("01122014")
+ymd_hms("20141201 10:14:12")
+ymd_hms("2014-12-01 10:14:12")
+```
+
+##  Get me all the mondays
+
+```{r}
+daysOfTheYear <- ymd(20141231) + days(1:365)
+head(wday(daysOfTheYear), n=3)
+head(wday(daysOfTheYear, label=TRUE), n=3)
+daysOfTheYear[wday(daysOfTheYear, label=TRUE) == "Mon"]
+```
+
+# Package: base
+
+Some nice functions from the base backage that comes with R.
+
+## grep()/grepl()
+
+As with a Unix CLI we can grep a dataset.
+
+```{r}
+grep("2015-02", daysOfTheYear)
+grep("2015-(01|02)-01", daysOfTheYear)
+grep("2015-(01|02)-01", daysOfTheYear, value = TRUE)
+firstOfMonth <- grepl("2015-(01|02)-01", daysOfTheYear)
+daysOfTheYear[firstOfMonth]
 ```
